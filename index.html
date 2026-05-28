@@ -1,0 +1,185 @@
+<!doctype html>
+<html lang="pl">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <meta name="theme-color" content="#10201a" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <meta name="apple-mobile-web-app-title" content="MakroFoto" />
+    <title>MakroFoto</title>
+    <link rel="manifest" href="manifest.webmanifest" />
+    <link rel="apple-touch-icon" href="icons/icon-192.svg" />
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <div class="app-shell">
+      <header class="topbar">
+        <div>
+          <p class="eyebrow">PWA na iOS</p>
+          <h1>MakroFoto</h1>
+        </div>
+        <button class="icon-button" id="installHelpButton" type="button" aria-label="Instrukcja dodania do ekranu głównego">
+          <span aria-hidden="true">+</span>
+        </button>
+      </header>
+
+      <main>
+        <section class="scan-panel" aria-labelledby="scan-title">
+          <div class="scan-copy">
+            <p class="eyebrow">Skan tabeli</p>
+            <h2 id="scan-title">Zdjęcie, szybka korekta, gotowy wpis</h2>
+          </div>
+          <label class="photo-drop" for="photoInput">
+            <input id="photoInput" type="file" accept="image/*" capture="environment" />
+            <img id="photoPreview" alt="" hidden />
+            <span id="photoPlaceholder">Zrób zdjęcie tabeli odżywczej</span>
+          </label>
+          <div class="scan-actions">
+            <button class="primary-button" id="mockOcrButton" type="button">Odczytaj z przykładu</button>
+            <button class="ghost-button" id="pasteModeButton" type="button">Wklej tekst OCR</button>
+          </div>
+          <div class="ocr-box" id="ocrBox" hidden>
+            <label for="ocrText">Tekst z tabeli</label>
+            <textarea id="ocrText" rows="5" placeholder="np. Wartość odżywcza w 100 g: energia 245 kcal, tłuszcz 12 g, węglowodany 24 g, białko 8 g"></textarea>
+            <button class="secondary-button" id="parseOcrButton" type="button">Wyciągnij makro</button>
+          </div>
+        </section>
+
+        <section class="editor-panel" aria-labelledby="editor-title">
+          <div class="section-heading">
+            <div>
+              <p class="eyebrow">Potwierdzenie</p>
+              <h2 id="editor-title">Popraw dane przed zapisaniem</h2>
+            </div>
+            <label class="toggle">
+              <input id="favoriteToggle" type="checkbox" />
+              <span>Produkt własny</span>
+            </label>
+          </div>
+
+          <div class="field-grid">
+            <label>
+              Nazwa produktu
+              <input id="productName" autocomplete="off" placeholder="np. Skyr waniliowy" />
+            </label>
+            <label>
+              Kod kreskowy
+              <input id="barcode" inputmode="numeric" placeholder="opcjonalnie" />
+            </label>
+            <label>
+              Wartości dla
+              <select id="baseAmount">
+                <option value="100">100 g / ml</option>
+                <option value="1">1 porcji</option>
+              </select>
+            </label>
+            <label>
+              Zjedzona ilość
+              <input id="servingAmount" type="number" min="0" step="1" value="100" />
+            </label>
+            <label>
+              kcal
+              <input id="kcal" type="number" min="0" step="1" />
+            </label>
+            <label>
+              Białko
+              <input id="protein" type="number" min="0" step="0.1" />
+            </label>
+            <label>
+              Tłuszcz
+              <input id="fat" type="number" min="0" step="0.1" />
+            </label>
+            <label>
+              Węglowodany
+              <input id="carbs" type="number" min="0" step="0.1" />
+            </label>
+          </div>
+
+          <div class="meal-result" aria-live="polite">
+            <div>
+              <span>Ten wpis</span>
+              <strong id="mealKcal">0 kcal</strong>
+            </div>
+            <div>
+              <span>B</span>
+              <strong id="mealProtein">0 g</strong>
+            </div>
+            <div>
+              <span>T</span>
+              <strong id="mealFat">0 g</strong>
+            </div>
+            <div>
+              <span>W</span>
+              <strong id="mealCarbs">0 g</strong>
+            </div>
+          </div>
+
+          <div class="button-row">
+            <button class="primary-button" id="saveMealButton" type="button">Dodaj do dziennika</button>
+            <button class="secondary-button" id="saveProductButton" type="button">Zapisz produkt</button>
+          </div>
+        </section>
+
+        <section class="dashboard" aria-label="Podsumowanie">
+          <article class="summary-panel">
+            <div class="section-heading compact">
+              <div>
+                <p class="eyebrow">Dzisiaj</p>
+                <h2>Dziennik</h2>
+              </div>
+              <button class="ghost-button small" id="clearDayButton" type="button">Wyczyść</button>
+            </div>
+            <div class="progress-wrap">
+              <div class="progress-ring" id="kcalRing" style="--progress: 0">
+                <span id="dailyKcal">0</span>
+                <small>kcal</small>
+              </div>
+              <div class="macro-list">
+                <p><span>Białko</span><strong id="dailyProtein">0 / 130 g</strong></p>
+                <p><span>Tłuszcz</span><strong id="dailyFat">0 / 70 g</strong></p>
+                <p><span>Węgle</span><strong id="dailyCarbs">0 / 250 g</strong></p>
+              </div>
+            </div>
+            <ul class="meal-list" id="mealList"></ul>
+          </article>
+
+          <article class="summary-panel">
+            <div class="section-heading compact">
+              <div>
+                <p class="eyebrow">Ustawienia</p>
+                <h2>Cele dzienne</h2>
+              </div>
+            </div>
+            <div class="goals-grid">
+              <label>kcal<input id="goalKcal" type="number" min="0" step="50" /></label>
+              <label>B<input id="goalProtein" type="number" min="0" step="5" /></label>
+              <label>T<input id="goalFat" type="number" min="0" step="5" /></label>
+              <label>W<input id="goalCarbs" type="number" min="0" step="5" /></label>
+            </div>
+            <button class="secondary-button full" id="saveGoalsButton" type="button">Zapisz cele</button>
+          </article>
+        </section>
+
+        <section class="library-panel" aria-labelledby="library-title">
+          <div class="section-heading">
+            <div>
+              <p class="eyebrow">Offline</p>
+              <h2 id="library-title">Historia produktów</h2>
+            </div>
+            <input id="productSearch" class="search-input" placeholder="Szukaj" />
+          </div>
+          <div class="product-list" id="productList"></div>
+        </section>
+      </main>
+
+      <dialog id="installDialog">
+        <h2>Dodanie na iPhone</h2>
+        <p>Otwórz tę stronę w Safari, stuknij Udostępnij, potem Dodaj do ekranu początkowego.</p>
+        <button class="primary-button" id="closeInstallDialog" type="button">OK</button>
+      </dialog>
+    </div>
+
+    <script src="app.js?v=2" type="module"></script>
+  </body>
+</html>
